@@ -8,3 +8,4 @@ __pycache__/
 data/raw/
 *.log
 .DS_Store
+C:\Users\admin\hospital-rag\data\raw\Sample Hospital SOP Documents for RAG Ingestion.pdf

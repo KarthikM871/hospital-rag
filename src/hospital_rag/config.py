@@ -22,7 +22,13 @@ class Settings(BaseSettings):
     ollama_model: str = "llama3.2:3b"
     ollama_url: str = "http://localhost:11434"
     min_score: float = 0.15
-    top_k: int = 3    
+    top_k: int = 3
+
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
+    postgres_db: str = "hospital_rag"
+    postgres_user: str = "rag"
+    postgres_password: str = ""
 
 
 def get_settings() -> Settings:

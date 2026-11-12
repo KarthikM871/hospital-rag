@@ -1,31 +1,5 @@
-import uuid
-
 import psycopg
 import pytest
-
-from src.hospital_rag.config import get_settings
-from src.hospital_rag.documents import DocumentRepository
-
-
-@pytest.fixture
-def repo():
-    settings = get_settings()
-    if not settings.postgres_password:
-        pytest.skip("RAG_POSTGRES_PASSWORD is not set in .env")
-    repository = DocumentRepository(
-        host=settings.postgres_host,
-        port=settings.postgres_port,
-        dbname=settings.postgres_db,
-        user=settings.postgres_user,
-        password=settings.postgres_password,
-        schema=f"test_{uuid.uuid4().hex[:8]}",
-    )
-    try:
-        repository.ensure_schema()
-    except psycopg.OperationalError as exc:
-        pytest.skip(f"Postgres is not available: {exc}")
-    yield repository
-    repository.drop_schema()
 
 
 def test_new_document_starts_as_processing(repo):
@@ -74,3 +48,20 @@ def test_mark_failed_stores_error_message(repo):
 
     assert updated.status == "failed"
     assert updated.error == "could not parse PDF"
+
+
+def test_list_documents_returns_newest_first(repo):
+    first = repo.create("a.pdf", "hash-1")
+    second = repo.create("b.pdf", "hash-2")
+
+    assert [d.id for d in repo.list_documents()] == [second.id, first.id]
+
+
+def test_ready_ids_contains_only_ready_documents(repo):
+    ready = repo.create("a.pdf", "hash-1")
+    repo.mark_ready(ready.id, 3)
+    repo.create("b.pdf", "hash-2")
+    failed = repo.create("c.pdf", "hash-3")
+    repo.mark_failed(failed.id, "boom")
+
+    assert repo.ready_ids() == {ready.id}

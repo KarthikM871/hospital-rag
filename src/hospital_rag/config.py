@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     postgres_user: str = "rag"
     postgres_password: str = ""
 
+    admin_api_key: str = ""
+    upload_dir: str = "data/raw/uploads"
+    max_upload_mb: int = 20
+
 
 def get_settings() -> Settings:
     return Settings()

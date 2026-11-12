@@ -119,3 +119,19 @@ class DocumentRepository:
         if row is None:
             raise LookupError(f"document {document_id} not found")
         return Document(**row)
+    
+    def list_documents(self) -> list[Document]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                f"SELECT {COLUMNS} FROM documents ORDER BY created_at DESC"
+            ).fetchall()
+        return [Document(**row) for row in rows]
+
+    def ready_ids(self) -> set[str]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT id::text AS id FROM documents WHERE status = 'ready'"
+            ).fetchall()
+        return {row["id"] for row in rows}
+
+    

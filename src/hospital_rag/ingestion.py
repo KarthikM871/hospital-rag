@@ -42,7 +42,7 @@ class IngestionService:
         self._min_chars = min_chars
         self._max_chars = max_chars
 
-    def ingest(self, path: Path) -> IngestionResult:
+    def ingest(self, path: Path, filename: str | None = None) -> IngestionResult:
         file_hash = file_sha256(path)
         existing = self._repo.get_by_hash(file_hash)
 
@@ -52,7 +52,7 @@ class IngestionService:
             raise IngestionError("this file is already being processed")
 
         if existing is None:
-            document = self._repo.create(path.name, file_hash)
+            document = self._repo.create(filename or path.name, file_hash)
         else:
             document = self._repo.mark_processing(existing.id)
 

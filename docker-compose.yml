@@ -1,6 +1,7 @@
 services:
   milvus:
     image: milvusdb/milvus:v2.5.14
+    restart: unless-stopped
     container_name: milvus-standalone
     command: ["milvus", "run", "standalone"]
     environment:
@@ -23,6 +24,7 @@ services:
 
   postgres:
     image: postgres:16
+    restart: unless-stopped
     container_name: hospital-postgres
     environment:
       POSTGRES_USER: rag
